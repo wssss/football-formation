@@ -1,101 +1,84 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import React, { useState, useRef } from 'react'
+import { motion, PanInfo } from 'framer-motion'
+import bg from "./assets/bg.png"
+type Player = {
+  id: number
+  x: number
+  y: number
+  color: string
+}
+
+export default function FormationBoard() {
+  const [players, setPlayers] = useState<Player[]>([
+    { id: 1, x: 60, y: 300, color: 'yellow' },    // Goalkeeper
+    { id: 2, x: 200, y: 120, color: 'blue' },     // Defenders
+    { id: 3, x: 200, y: 280, color: 'blue' },
+    { id: 4, x: 200, y: 440, color: 'blue' },
+    { id: 5, x: 200, y: 600, color: 'blue' },
+    { id: 6, x: 400, y: 200, color: 'green' },    // Midfielders
+    { id: 7, x: 400, y: 360, color: 'green' },
+    { id: 8, x: 400, y: 520, color: 'green' },
+    { id: 9, x: 640, y: 200, color: 'red' },      // Forwards
+    { id: 10, x: 640, y: 360, color: 'red' },
+    { id: 11, x: 640, y: 520, color: 'red' },
+  ])
+
+  const boardRef = useRef<HTMLDivElement>(null)
+
+  const handleDrag = (id: number, dragInfo: PanInfo) => {
+    setPlayers(players.map(player =>
+      player.id === id
+        ? { ...player, x: player.x + dragInfo.delta.x, y: player.y + dragInfo.delta.y }
+        : player
+    ))
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8">
+      <h1 className="text-4xl font-bold mb-8">足球阵型板 (4-3-3)</h1>
+      <div 
+        ref={boardRef}
+        className="w-[900px] h-[600px] relative overflow-hidden"
+        style={{
+          backgroundImage: `url(${bg.src})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {players.map((player) => (
+          <motion.div
+            key={player.id}
+            drag
+            dragMomentum={false}
+            dragElastic={0.1}
+            dragConstraints={boardRef}
+            onDragEnd={(e, info) => handleDrag(player.id, info)}
+            initial={{ x: player.x - 20, y: player.y - 20 }}
+            animate={{ x: player.x - 20, y: player.y - 20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            style={{
+              position: 'absolute',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: player.color,
+              cursor: 'move',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              color: 'white',
+              fontSize: '20px',
+              fontWeight: 'bold',
+              boxShadow: '0 0 0 4px white, 0 0 10px rgba(0,0,0,0.3)',
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            {player.id}
+          </motion.div>
+        ))}
+      </div>
+      <p className="mt-8 text-xl text-gray-600">拖动球员图标来调整阵型</p>
     </div>
-  );
+  )
 }
